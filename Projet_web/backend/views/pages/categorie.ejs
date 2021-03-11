@@ -1,0 +1,34 @@
+<%- include ('../partials/header') %>
+<!--Si la page recoit des resultats, affichage de la photo et du nom de la du produit et du prix dans un frame, qui fait un lien vers le produit-->
+<% if(outils.length > 0) { %>
+    <form action="/categorie/:id">
+        <div class="container">
+            <div class="row">
+                <!--Boucle sur tous les resultats de outils(resultats de la commande sql)-->
+                <% outils.forEach(function(row){ %>
+                    <a class="ecart" href="/produit/<%= row.nom %>">
+                        <div class="col img-thumbnail text-center rectangle">
+                            <img style="max-height:300px; max-width: 400px;" src="<%= row.image %>" />
+                            <div class="col text-center">
+                                <textbox>
+                                    <%= row.nom %><br>
+                                    <b><%= row.prix.toFixed(2) %>$</b>
+                                </textbox>
+                            </div>
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+        </div>
+    </form>
+    <!--S'il n'y a pas de resultats, c'est qu'il y a une erreur dans la base de donnee-->
+    <% }else {%>
+        <div class="container">
+            <div class="row align-middle">
+                <div class="col-6 mx-auto milieu d-flex align-self-center">
+                    <h1><strong>Une erreur s'est produit lors de la rêquete. S'il vous plaît, contacter l'administrateur</strong></h1>
+                </div>
+            </div>
+        </div>
+    <% } %>
+    <%- include ('../partials/footer') %>

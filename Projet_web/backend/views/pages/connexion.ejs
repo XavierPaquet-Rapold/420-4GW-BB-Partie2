@@ -1,0 +1,18 @@
+<%- include ('../partials/header') %>
+    <!--Page de connexion, affichage du form de connexion pour se connecter sur son compte-->
+    <form action="/connexion" method="POST"  >
+        <div class="container connexion">
+            <div class="main milieu">
+                <h2>Connexion</h2>
+                <label>Utilisateur :</label>
+                <input type="text" name="username" id="username" placeholder="Entrez votre courriel"/>
+                <label>Mot-de-Passe :</label>
+                <input type="password" name="password" placeholder="Entrez le mot-de-passe"/>
+                <input type="submit" href="/connexion" class="button3" value="Connexion"/>
+                <input type="button" class="button1" onclick=window.location.href="/creation" value="Créer un compte" />
+            </div>
+        </div>
+    </form>
+   
+    
+    <%- include ('../partials/footer') %>

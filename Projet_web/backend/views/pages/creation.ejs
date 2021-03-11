@@ -1,0 +1,79 @@
+<%- include ('../partials/header') %>
+<!--Page de creation de compte: remplir les informations pour creer son compte-->
+<div class ="container-fluid">
+    
+    <form action="/creation" method="POST" class="col s12">
+        <br>
+        <h1>Créer un compte</h1>
+
+        <div class="form-group row">
+            <label for ="Prenom" class="col-2 col-form-label"><b>Prenom :</b></label><br>
+            <div class="col-10">
+                <input type = "text" id= "Prenom" name = "Prenom" class="form-control" autocomplete="fname"required><br>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="Nom" class="col-2 col-form-label"><b>Nom :</b></label> <br>
+            <div class="col-sm-10">  
+                <input type = "text" id= "Nom" name = "Nom" class="form-control" autocomplete="lname" required><br>
+            </div>  
+        </div>
+
+        <div class="form-group row">
+            <label for="Courriel" class="col-2 col-form-label"><b>Courriel :</b></label> <br>
+            <div class="col-10">
+             <input type = "email" placeholder="example@gmail.com" id="email" name = "email" class="form-control" autocomplete="email" required><br>
+            </div>
+         </div>
+
+
+         <div class="form-group row">
+            <label for="Mot-de-passe" class="col-2 col-form-label"><b>Mot de passe :</b></label> <br>
+            <div class="col-10">
+                <input type ="password" id ="password" name ="password" class="form-control" required><br>
+            </div>
+        </div>
+
+        <div class="form-group row">
+         <label for="Telephone" class="col-2 col-form-label"><b>Telephone :</b></label> <br>
+            <div class="col-10">
+                <input type ="text" id="tel" placeholder="514-889-5566" name ="tel" class="form-control" autocomplete="tel"><br>
+            </div>
+        </div>
+
+
+        <div class="form-group row">
+            <label for="Adresse" class="col-2 col-form-label"><b>Adresse :</b></label> <br>
+            <div class="col-10">
+                <input type ="text" id="Adresse" name ="Adresse" class="form-control" autocomplete="shipping street-address"><br>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="ville" class="col-2 col-form-label"><b>Ville :</b></label> <br>
+            <div class="col-10">
+                <input type ="text" id= "ville" name ="ville" class="form-control" autocomplete="shipping locality"><br>
+            </div>
+        </div>
+
+
+        <div class="form-group row">
+            <label for="Code Postale" class="col-2 col-form-label"><b>Code Postale :</b></label> <br>
+            <div class="col-10">
+                <input type ="text" id="Postale" name ="Postale" class="form-control" autocomplete="shipping postal-code"><br>
+            </div>
+        </div>
+       
+        
+        <div class="form-group row">
+            <div class="col-10" >
+                <br><input type = "submit" name="submit" href="/creation" value = "Créer un compte" class="btn btn-primary btn-lg">
+            </div>
+        </div>
+    </div>
+    </form>
+    
+</div>
+
+<%- include ('../partials/footer') %>

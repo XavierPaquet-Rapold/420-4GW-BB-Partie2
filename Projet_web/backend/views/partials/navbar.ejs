@@ -1,0 +1,47 @@
+<!-- Barre de navigation en haut de l'ecran-->
+<nav class ="navbar navbar-dark bg-info">
+    <!--Partie a gauche de la barre de navigation: logo et dropdown menu des categories-->
+    <div class="d-flex justify-content-start" style="size: 115%;">
+        <a href="/" class="btn btn-lg" style="max-height: 50px;"><img src="/images/logo.png"></a>	
+        <div class="dropdown" style="margin-top: 5px;">
+            <button class="btn btn-lg dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Categorie
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                <% items.forEach(function(row){ %>
+                    <a class="dropdown-item" href="/categorie/<%= row.nom %>">
+                        <div class="col text-center">
+                            <%= row.nom %>
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+    <!--Milieu de la barre de navigation: nom du site web-->
+    <div class="topnav-centered">
+        <a href="/" class="btn btn-lg"><b>To Spite The Amish</b></a>
+    </div>
+    
+    <!--Partie gauche de la barre de navigation: actions possibles selon l'utilisateur est connecte ou non-->
+    <div class="d-flex justify-content-end">
+        <!--Si l'utilisateur est connecte: dropdown menu des action possibles(panier et deconnexion pour l'instant, peut-etre changement des informations de profil plus tard)-->
+        <% if(connexion) { %>
+            <div class="btn-group" style="margin-top: 5px;">
+                <button class="btn btn-lg dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Profil
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu">
+                    <div class="col text-center">
+                        <a href="/panier" class="dropdown-item"><img src="/images/shopping-cart.png"></a>
+                        <a href="/logout" class="dropdown-item">Déconnexion</a>
+                    </div>
+                </div>
+            </div>
+        <!--Si l'utilisateur n'est pas connecte: lien vers les pages de connexion et de creation de compte-->
+        <% } else {%>
+            <a href="/connexion" class="btn btn-lg" style="margin-top: 5px; max-height: 50px;">Connexion</a>
+            <a href="/creation" class="btn btn-lg" style="margin-top: 5px; max-height: 50px;">Créer un compte</a>
+        <% } %>
+    </div>
+</nav>	

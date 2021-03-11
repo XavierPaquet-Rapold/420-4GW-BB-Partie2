@@ -1,0 +1,120 @@
+<%- include ('../partials/header') %> 
+<!--S'il y a un resultat pour la recherche: affichage de la photo, du nom, de la marque, du prix, de la description et de la disponibilite en magasin-->
+<% if(item.length > 0) { %>   
+    <div class="container">
+        <div class="row custom-line">
+
+            <% item.forEach(function(row){ %>
+
+                <a class="ecart">
+
+                    <div class="col align-self-start img-thumbnail">
+                        <img style="max-height:400px; max-width: 550px;" src="<%= row.image %>" />
+                    </div>
+
+                </a>
+
+                <div class="col textcss">
+                    <textblock class="textcss">
+                        <h1>
+                            <u><%= row.nom %></u>
+                        </h1>
+                        <br>
+                        <h3> Compagnie: <%= row.marque %>
+                        </h3>
+                        <br>
+                        <h3> Prix: <%= row.prix.toFixed(2) %>$</h3>
+                        <br>
+                        <p>Description: <%= row.description %>
+                        </p>
+                    </textblock>
+                    <!--Si l'utilisateur est connecte: affichage d'un compteur et d'un bouton d'ajout au panier de l'utilisateur-->
+                    <% if(connexion) { %>
+                        <form action="/produit/<%= row.id_produit %>" method="POST">
+                            <div class="form-group row ">
+                                <div class="col-10">
+                                    <div class="a-column a-span12 a-text-left">
+                                        <span class="a-dropdown-container"><label for="quantity" class="a-native-dropdown">Quantité:</label>
+                                            <select name="quantity" autocomplete="off" id="quantity" tabIndex="-1" class="a-native-dropdown">
+                                        
+                                                <% for (var i =1; i <=15;  i++ ) { %>
+                                                    <option value="<%= i %>">
+                                                        <%= i %>
+                                                    </option>
+                                                <% } %>
+                                                
+                                            </select>
+                                            <span tabIndex="-1" class="a-button a-button-dropdown a-button-small">
+                                                <span class="a-button-inner">
+                                                    <span class="a-button-text a-declarative" data-action="a-dropdown-button" role="button" tabIndex="0" aria-hidden="true">
+                                                        <span class="a-dropdown-label"></span>
+                                                        <span class="a-dropdown-prompt"></span>
+                                                    </span>
+                                                    <i class="a-icon a-icon-dropdown"></i>
+                                                </span>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    
+                                    <input type="hidden" name="id_produit" value="<%= row.id_produit %>"/>
+                                    <input type="submit" class="btn btn-warning btn-lg" id="<%= row.id_produit %>" value="Ajoutez au panier"/>
+                                    
+                                </div>
+                            </div>
+                        </form>
+                    <% } %>
+                </div>
+                <!--Affichage de la table de disponibilite en magasin-->
+                <div class="table-responsive">
+
+                    <table class="table textcss table-dark table-condensed">
+                        <thead>
+                            <tr class="bg-info">
+                                <th>Nom de magasin</th>
+                                <th>Stock</th>
+                                <th>Adresse</th>
+                                <th>Ville</th>
+                                <th>Code Postal</th>
+                                <th>Telephone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <% outils.forEach(function(row){ %>
+
+                                <tr>
+
+                                    <td><%= row.nom %></td>
+                                
+                                    <td><%= row.nombre %></td>
+                                
+                                    <td><%= row.adresse %></td>
+                                
+                                    <td><%= row.ville %></td>
+                                
+                                    <td><%= row.code_postale %></td>
+                                
+                                    <td><%= row.tel %></td>
+
+                                </tr>
+                            
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% }) %>
+
+        </div>
+    </div>
+<!--S'il n'y a pas de resultat, c'est qu'il y a une erreur dans la base de donnee-->
+<% }else {%>
+    <div class="container">
+        <div class="row align-middle">
+            <div class="col-6 mx-auto milieu d-flex align-self-center">
+                <h1><strong> Une erreur avec la base de données s'est produit. S'il vous plaît, contacter l'administrateur</strong></h1>
+            </div>
+        </div>
+    </div>
+<% } %>
+    
+<%- include ('../partials/footer') %>

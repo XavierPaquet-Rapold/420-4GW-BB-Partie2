@@ -1,0 +1,100 @@
+<%- include ('../partials/header') %>
+<!--Si l'utilisateur est connectee et qu'il y a quelque chose dans son panier: affichage dans une table l'image, le nom, la marque, le nombre, le prix unitaire, le prix total
+et des options d'actions pour chaqu'un des produits-->
+<% if(outils.length > 0 && connexion) { %>
+    <% var total = 0; %>
+    <div class="table-responsive row custom-line">
+        <table style="width: 90%; margin-top: 2%; margin-left: 6%; text-align: center;" class="table table-dark table-condensed table-striped">
+            <!--Affichage des titres des colonnes-->
+            <thead>
+                <tr class="bg-info">
+                    <th style="width: 5%;">Image</th>
+                    <th style="width: auto;">Produit</th>
+                    <th style="width: auto">Marque</th>
+                    <th style="width: auto">Nombre</th>
+                    <th style="width: auto;">Prix par unité</th>
+                    <th style="width: auto">Prix total</th>
+                    <th colspan="2" style="width: 25%; text-align:center;">Actions</th>
+                </tr>
+            </thead>
+            <!--Affichage des informations sur chaque produit-->
+            <tbody>
+                <% outils.forEach(function(row){ %>
+                    <tr>
+                        <td>
+                            <img style="max-height:50px; max-width: 50px;" src="<%= row.image %>"/>
+                        </td>
+                        <td><%= row.nom %></td>
+                        <td><%= row.marque %></td>
+                        <td><%= row.nombre %></td>
+                        <td><%= row.prix.toFixed(2) %>$</td>
+                        <td><%= (row.prix * row.nombre).toFixed(2) %>$</td>
+                        <!--Actions pour chaque produit: modifier le nombre du produit dans le panier et enlever le produit du panier-->
+                        <td colspan="2">
+                            <div class="row container" style="display: flex; justify-content: center;">
+                                <form action="/panier/modifier/<%= row.id_produit %>" method="POST">
+                                    <div class="row">
+                                        <input type="hidden" name="id_produit" value="<%= row.id_produit %>"/>
+                                        <div style="width: 60px;">
+                                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="30" placeholder="<%= row.nombre %>">
+                                        </div>
+                                        <div class="col">
+                                            <input type="submit" class="btn btn-warning btn-md" id="<%= row.id_produit %>" value="Modifier"/>
+                                        </div>
+                                    </div>
+                                </form>
+                                <form action="/panier/enlever/<%= row.id_produit %>" method="POST">
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="hidden" name="id_produit" value="<%= row.id_produit %>"/>
+                                            <input type="submit" class="btn btn-danger btn-md" id="<%= row.id_produit %>" value="Enlever"/>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <% total += (row.prix * row.nombre) %>
+                <% }) %>
+                <!--Prix total du panier au complet(sans les taxes)-->
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td span>
+                            <b><%= total.toFixed(2) %>$</b>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </tbody>
+        </table>
+        
+
+    </div>
+<!--Si l'utilisateur n'est pas connecte: affichage d'un message demandant de se connecter-->
+<% }else if(!connexion) {%>
+    <div class="container">
+        <div class="row align-middle">
+            <div class="col-6 mx-auto milieu d-flex align-self-center">
+                <h1><strong> Veuillez vous connecter pour acceder au panier </strong></h1>            
+            </div>
+        </div>
+    </div>
+<!--Si l'utilisateur est connecte mais qu'il n'y a rien dans outils, c'est qu'il n'y a rien dans le panier-->
+<% } else { %>
+    <div class="container">
+        <div class="row align-middle">
+            <div class="col-6 mx-auto milieu d-flex align-self-center">
+                <h1><strong> Vous n'avez pas de produits dans votre panier </strong></h1>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+
+<%- include ('../partials/footer') %>
