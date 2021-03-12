@@ -6,6 +6,7 @@ var session = require('express-session');
 var path = require('path');
 var bodyParser = require('body-parser');
 var dateFormat = require('dateformat');
+const fetch = require ('node-fetch');
 const { Console } = require('console');
 var now = new Date();
 const siteTitle = "To Spite The Amish";
@@ -220,7 +221,7 @@ app.post('/panier/modifier/:id', function (req, res) {
             res.redirect('/panier');
         });
     }else{
-        res.status(204).send();
+        res.status(500).send("Erreur");
     }
 });
 
@@ -228,6 +229,7 @@ app.post('/panier/modifier/:id', function (req, res) {
  * Reception de connexion et mise en memoire
  */
 app.post('/connexion', function(req, res) {
+    console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
     if (username && password) {
@@ -238,7 +240,7 @@ app.post('/connexion', function(req, res) {
                 req.session.id_utilisateur = results[0].id_utilisateur;
                 res.redirect('/panier');
             } else {
-                res.status(204).send();
+                res.status(204).send("Erreur");
             }
         });
     } else {
