@@ -21,5 +21,8 @@
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.1",
     "tether": "^1.4.7"
+  },
+  "devDependencies": {
+    "@types/google.maps": "^3.44.2"
   }
 }

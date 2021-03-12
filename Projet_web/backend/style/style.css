@@ -1,5 +1,10 @@
 /* Page qui contient le css pour toutes les pages ejs */
 
+.mapCSS{
+    height:400px;
+    width: 400px;
+}
+
 /* 
  css appliqué sur les tags utilisants la classe ecart, applique un écart pour les images de produit,
   présent dans la page categorie et produit
