@@ -11,7 +11,7 @@ const { Console } = require('console');
 var now = new Date();
 const siteTitle = "To Spite The Amish";
 const baseURL = "http://localhost:4000";
-
+const CustomError = require('./CustomError')
 /**
 * Préparation du port pour l'écoute
 */
@@ -167,7 +167,7 @@ app.get('/logout',  function (req, res, next)  {
             res.redirect(req.get('referer'));
         });
     } else {
-        res.redirect(req.get('referer'));   
+        res.redirect(req.get('referer'));
     }
 });
 
@@ -221,7 +221,10 @@ app.post('/panier/modifier/:id', function (req, res) {
             res.redirect('/panier');
         });
     }else{
-        res.status(500).send("Erreur");
+        res.status(404).send({
+            error: 'NOT_FOUND',
+            description: 'The resource you tried to access does not exist.',
+        })
     }
 });
 
@@ -240,7 +243,10 @@ app.post('/connexion', function(req, res) {
                 req.session.id_utilisateur = results[0].id_utilisateur;
                 res.redirect('/panier');
             } else {
-                res.status(204).send("Erreur");
+                res.status(404).send({
+                    error: 'NOT_FOUND',
+                    description: "La combinaison du nom d'utilisateur et du mot de passe est differente.",
+                })
             }
         });
     } else {

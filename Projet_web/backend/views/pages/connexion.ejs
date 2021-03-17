@@ -20,7 +20,6 @@
 
                 // Bind the FormData object and the form element
                 const FD = new FormData( form );
-                alert(document.getElementById( 'myForm' ));
                 // Define what happens on successful data submission
                 XHR.addEventListener( "load", function(event) {
                     alert( event.target.responseText );
@@ -30,6 +29,12 @@
                 XHR.addEventListener( "error", function( event ) {
                     alert( 'Oops! Something went wrong.' );
                 } );
+
+                xhr.onreadystatechange = () => {
+                    if (xhr.status === 404) {
+                        alert( 'Oops! Something went wrong.' );
+                    }
+                };
 
                 // Set up our request
                 XHR.open( "POST", "/connexion" );
