@@ -122,8 +122,8 @@
 <script>
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 8,
-        center: { lat: 45.5016889, lng: -73.567256 },
+        zoom: 10,
+        center: { lat: 45.527459993608275, lng: -73.62596862089897 },
     });
     const geocoder = new google.maps.Geocoder();
   
@@ -151,8 +151,9 @@ function geocodeAddress(geocoder, resultsMap) {
   
 }
 </script>
+    
 <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQooeP6_SoJsy3tmnok4bd5MyKOJ_DeFM&callback=initMap&libraries=&v=weekly"
     ></script>
-    
+    </div>
 <%- include ('../partials/footer') %>
