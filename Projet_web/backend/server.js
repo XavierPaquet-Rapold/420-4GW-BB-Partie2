@@ -183,9 +183,12 @@ app.post('/produit/:id', function (req, res) {
     if(req.session.loggedin){
         con.query("INSERT INTO panier (produit_id_produit, utilisateur_id_utilisateur, nombre) VALUES (?, ?, ?);", [id_produit, req.session.id_utilisateur, quantite], 
         function (err, result) {
-            if (err) throw err;
-
-            res.status(204).send();
+            if (err) {
+                res.redirect(req.get('referer')); 
+            }
+            else{
+                res.status(204).send();
+            }
         });
     }else{
         res.status(204).send();
@@ -217,8 +220,12 @@ app.post('/panier/modifier/:id', function (req, res) {
     if(req.session.loggedin){
         con.query("UPDATE panier SET nombre = ? WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [nombre, id_produit, req.session.id_utilisateur],
         function (err, result) {
-            if (err) throw err;
-            res.redirect('/panier');
+            if (err){
+                res.redirect(req.get('referer')); 
+            }
+            else{
+                res.redirect(req.get('referer'));
+            }
         });
     }else{
         res.status(500).send("Erreur");
