@@ -60,13 +60,16 @@ app.get('/', function (req, res) {
             connexion: req.session.loggedin
         });
     });**/
-    Produit_Categorie.find()
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+    Promise.all([
+        Produit_Categorie.find()
+    ]).then(([categories]) => {
+        res.render('pages/index', {
+            siteTitle: siteTitle,
+            pageTitle: "Page Principale",
+            items: categories,
+            connexion: req.session.loggedin
+        });
+    });
 });
 
 /*
