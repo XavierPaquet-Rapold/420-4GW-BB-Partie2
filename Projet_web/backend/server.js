@@ -211,7 +211,7 @@ app.get('/creation', function (req, res) {
 /**
  * get methode : pour fermer la session de l'utilisateur
  */
-/**app.get('/logout',  function (req, res, next)  {
+app.get('/logout',  function (req, res, next)  {
     if (req.session.loggedin) {
         // delete session object
         req.session.destroy(function (err) {
@@ -223,7 +223,7 @@ app.get('/creation', function (req, res) {
     } else {
         res.redirect(req.get('referer'));   
     }
-});**/
+});
 
 /*
 pour ajouter un produit au panier
