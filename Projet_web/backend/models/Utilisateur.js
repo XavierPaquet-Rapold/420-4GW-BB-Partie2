@@ -40,5 +40,5 @@ cartecredit: {
 }
 },
 {timestamps: true});
-const Utilisateur = moongoose.model('utilisateur', utilisateurSchema);
+const Utilisateur = mongoose.model('utilisateur', utilisateurSchema);
 module.exports = Utilisateur;

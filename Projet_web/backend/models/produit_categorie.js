@@ -7,5 +7,5 @@ nom:{
     required:true
 },},
 {timestamps: true});
-const Magasin = moongoose.model('produit_categorie', produitCatSchema);
+const Magasin = mongoose.model('produit_categorie', produitCatSchema);
 module.exports = Magasin;

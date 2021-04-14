@@ -26,5 +26,5 @@ postale: {
 
 },
 {timestamps: true});
-const Magasin = moongoose.model('magasin', magasinSchema);
+const Magasin = mongoose.model('magasin', magasinSchema);
 module.exports = Magasin;
