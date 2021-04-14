@@ -27,10 +27,12 @@ app.use(session({
 	saveUninitialized: true
 }));
 
-const Panier = require('./models/panier');
 const Inventaire = require('./models/inventaire');
+const Magasin = require('./models/magasin');
+const Panier = require('./models/panier');
+const Produit_Categorie = require('./models/produit_categorie');
 const Produit = require('./models/produit');
-
+const Utilisateur = require('./models/utilisateur');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -48,8 +50,8 @@ app.use('/css', express.static(__dirname + '/style'));
 /*
 pour générer la page principale
 */
-/**app.get('/', function (req, res) {
-    con.query("SELECT * FROM produit_catégorie ORDER BY id_catégorie ASC", function (
+app.get('/', function (req, res) {
+    /**con.query("SELECT * FROM produit_catégorie ORDER BY id_catégorie ASC", function (
         err, result) {
         res.render('pages/index', {
             siteTitle: siteTitle,
@@ -57,8 +59,15 @@ pour générer la page principale
             items: result,
             connexion: req.session.loggedin
         });
-    });
-});**/
+    });**/
+    Produit_Categorie.find()
+        .then((result) => {
+            res.send(result);
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+});
 
 /*
 pour generer la page de categorie

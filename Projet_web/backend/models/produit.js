@@ -1,4 +1,5 @@
 const { Decimal128 } = require('bson');
+var ObjectId = require('mongodb').ObjectID;
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -24,7 +25,7 @@ const produitSchema = new Schema({
         required: true
     },
     categorie: {
-        type: ObjectID,
+        type: ObjectId,
         required: true
     }
 }, { timestamps: true });

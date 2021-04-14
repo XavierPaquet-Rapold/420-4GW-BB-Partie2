@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+var ObjectId = require('mongodb').ObjectID;
 const Schema = mongoose.Schema;
 
 const inventaireSchema = new Schema({
@@ -7,10 +8,10 @@ const inventaireSchema = new Schema({
         required: true
     },
     magasin: {
-        type: ObjectID,
+        type: ObjectId,
         required: true
     }
 }, { timestamps: true });
 
-const Inventaire = mongoose.model('Inventaire', panierSchema);
+const Inventaire = mongoose.model('Inventaire', inventaireSchema);
 module.exports = Inventaire;

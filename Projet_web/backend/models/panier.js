@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+var ObjectId = require('mongodb').ObjectID;
 const Schema = mongoose.Schema;
 
 const panierSchema = new Schema({
@@ -7,7 +8,7 @@ const panierSchema = new Schema({
         required: true
     },
     utilisateur: {
-        type: ObjectID,
+        type: ObjectId,
         required: true
     }
 }, { timestamps: true });
