@@ -33,10 +33,6 @@ const utilisateurSchema = new Schema({
     postale: {
         type:String,
         required:true
-    },
-    cartecredit: {
-        type:String,
-        required:true
     }
 },
 {timestamps: true});
