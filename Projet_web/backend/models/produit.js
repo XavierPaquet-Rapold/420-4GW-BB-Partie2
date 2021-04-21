@@ -9,7 +9,7 @@ const produitSchema = new Schema({
         required: true
     },
     prix: {
-        type: Decimal128,
+        type: String,
         required: true
     },
     modele: {

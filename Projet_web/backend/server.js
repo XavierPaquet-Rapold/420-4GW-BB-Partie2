@@ -86,18 +86,24 @@ app.get('/categorie/:id', function (req, res) {
                 items: result[1],
                 connexion: req.session.loggedin
             });*/
-            Promise.all([
-                Produit_Categorie.find()
-            ]).then(([result]) => {
-                res.render('pages/categorie.ejs', {
-                    siteTitle: siteTitle,
-                    pageTitle: "Categorie",
-                    outils: result[0],
-                    items: result[1],
-                    connexion: req.session.loggedin
-                });
-
-    });
+    
+    const query = { nom: req.params.id };
+    Produit_Categorie.findOne(query)
+    .then((result) => {
+        const query2 = { id_catégorie : result.id };
+        Promise.all([
+            Produit.find(query2),
+            Produit_Categorie.find()
+        ]).then(([result, result2]) => {
+            res.render('pages/categorie.ejs', {
+                siteTitle: siteTitle,
+                pageTitle: "Categorie",
+                outils: result,
+                items: result2,
+                connexion: req.session.loggedin
+            });
+        });
+    })
 });
 
 /*
@@ -117,17 +123,39 @@ app.get('/produit/:id', function (req, res) {
                 connexion: req.session.loggedin
             });
         });**/
-Promise.all([
-    Produit.find()]).then(([result]) =>{
-        res.render('pages/produit.ejs', {
-            siteTitle: siteTitle,
-            pageTitle: "Produit",
-            item: result[0],
-            outils: result[1],
-            items: result[2],
-            connexion: req.session.loggedin
+    const query = { nom: req.params.id };
+    Produit.find(query)
+    .then((result) => {
+        const query2 = { id_produit: result.id };
+        Promise.all([
+            Inventaire.find(query2),
+            Produit_Categorie.find(),
+            Magasin.aggregate([
+                { $lookup:
+                    {
+                        from: 'Inventaire',
+                        localField: '_id',
+                        foreignField: 'id_magasin',
+                        as: 'detailsMagasin'
+                    }
+                }
+            ])
+        ])
+        .then(([result1, result2, result3]) =>{
+            console.log(result3);
+            //console.log(result1);
+            //console.log(result2);
+            res.render('pages/produit.ejs', {
+                siteTitle: siteTitle,
+                pageTitle: "Produit",
+                item: result,
+                outils: result1,
+                items: result2,
+                magasins: result3,
+                connexion: req.session.loggedin
+            });
         });
-    });
+    })
 });
 
 /*
