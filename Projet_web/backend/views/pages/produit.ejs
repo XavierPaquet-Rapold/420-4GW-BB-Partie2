@@ -30,7 +30,7 @@
                     </textblock>
                     <!--Si l'utilisateur est connecte: affichage d'un compteur et d'un bouton d'ajout au panier de l'utilisateur-->
                     <% if(connexion) { %>
-                        <form action="/produit/<%= row.id_produit %>" method="POST">
+                        <form action="/produit/<%= row.id %>" method="POST">
                             <div class="form-group row ">
                                 <div class="col-10">
                                     <div class="a-column a-span12 a-text-left">
@@ -56,8 +56,8 @@
                                         </span>
                                     </div>
                                     
-                                    <input type="hidden" name="id_produit" value="<%= row.id_produit %>"/>
-                                    <input type="submit" class="btn btn-warning btn-lg" id="<%= row.id_produit %>" value="Ajoutez au panier"/>
+                                    <input type="hidden" name="id_produit" value="<%= row.id %>"/>
+                                    <input type="submit" class="btn btn-warning btn-lg" id="<%= row.id %>" value="Ajoutez au panier"/>
                                     
                                 </div>
                             </div>
