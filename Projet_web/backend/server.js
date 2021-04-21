@@ -26,7 +26,12 @@ const client = new Client({
 
 //Connection a mongoDB et ecoute sur le port
 const url = "mongodb+srv://Xavier:1234@cluster0.loi5s.mongodb.net/db_site?retryWrites=true&w=majority";
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(url, { 
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true 
+})
     .then((result) => app.listen(4000, function(){
         console.log("serveur fonctionne sur 4000");
     }))
@@ -182,20 +187,32 @@ app.get('/produit/:id', function (req, res) {
         Promise.all([
             Inventaire.find(query2),
             Produit_Categorie.find(),
-            Magasin.aggregate([
+            /**Produit, Inventaire, Magasin.find({
+                "$and":[{
+                    "$where":"this.Produit._id == this.Inventaire.id_produit"
+                },{
+                    "$and":[{
+                        "Produit.Nom": req.params.id
+                    }, {
+                        "$where":"this.Inventaire.id_magasin == this.Magasin._id"
+                    }]
+                }
+            ]
+            })**/
+            /**Magasin.aggregate([
                 { $lookup:
                     {
                         from: 'Inventaire',
                         localField: '_id',
-                        foreignField: 'id_magasin',
+                        foreignField: 'magasin',
                         as: 'detailsMagasin'
                     }
                 }
-            ])
+            ])**/
         ])
         .then(([result1, result2, result3]) =>{
-            console.log(result3);
-            //console.log(result1);
+            //console.log(result3);
+            console.log(result);
             //console.log(result2);
             res.render('pages/produit.ejs', {
                 siteTitle: siteTitle,
@@ -228,6 +245,7 @@ app.get('/panier', function (req, res) {
             connexion: req.session.loggedin
         });
     });**/
+
 Promise.all([
     Produit_Categorie.find(),
     Panier.find()
@@ -311,12 +329,13 @@ app.get('/logout',  function (req, res, next)  {
 /*
 pour ajouter un produit au panier
 */
-/**app.post('/produit/:id', function (req, res) {
+app.post('/produit/:id', function (req, res) {
     // get the record base on ID    
     var quantite = req.body.quantity;
     var id_produit = req.body.id_produit;
+    console.log(req.session.username)
     if(req.session.loggedin){
-        con.query("INSERT INTO panier (produit_id_produit, utilisateur_id_utilisateur, nombre) VALUES (?, ?, ?);", [id_produit, req.session.id_utilisateur, quantite], 
+        /**con.query("INSERT INTO panier (produit_id_produit, utilisateur_id_utilisateur, nombre) VALUES (?, ?, ?);", [id_produit, req.session.id_utilisateur, quantite], 
         function (err, result) {
             if (err) {
                 res.redirect(req.get('referer')); 
@@ -324,11 +343,21 @@ pour ajouter un produit au panier
             else{
                 res.status(204).send();
             }
-        });
+        });**/
+        const donnees = {
+            produit: id_produit,
+            utilisateur: req.session.id_utilisateur,
+            nombre: quantite
+        }
+        new Panier(donnees)
+        .save()
+        .then(donnees => {
+            res.redirect(req.get('referer'));
+        })
     }else{
         res.status(204).send();
     }
-});**/
+});
 
 /*
 Enlever un produit du panier
@@ -414,24 +443,23 @@ app.post('/panier/modifier/:id', function (req, res) {
     }
 });*/
 app.post('/connexion', function(req, res){
-MongoClient.connect(url,function(err,db){
-    if(err)throw err;
     var username = req.body.username;
     var password = req.body.password;
-    var dbo = db.db("db_site");
-    dbo.collection("utilisateurs").find({},{projection: {email: username, password: password} }).toArray(function(err,result){
-       if(err)throw err;
-       if (result.length > 0) {
-        req.session.loggedin = true;
-        req.session.username = username;
-        res.redirect('/panier');
-    } else {
-        res.status(204).send();
-    }
-    });
+    const query={email:username, password:password};
+    Promise.all([
+        Utilisateur.findOne(query)
+    ]).then(([result]) => {
+        if (result) {
+            req.session.loggedin = true;
+            req.session.username = username;
+            req.session.id_utilisateur = result.id;
+            res.redirect('/panier');
+        } else {
+            res.status(204).send();
+        }
+    })
 });
 
-});
 /**
  * post methode to date : pour ajouter un utilisateur a la BD
  */

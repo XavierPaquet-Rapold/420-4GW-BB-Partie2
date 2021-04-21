@@ -12,7 +12,7 @@ const produitSchema = new Schema({
         type: String,
         required: true
     },
-    modele: {
+    description: {
         type: String,
         required: true
     },

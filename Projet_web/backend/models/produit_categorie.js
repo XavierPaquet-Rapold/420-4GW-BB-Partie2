@@ -9,7 +9,8 @@ nom:{
 lien_image:{
     type:String,
     required:true
-}},
+}
+},
 {timestamps: true});
 const Magasin = mongoose.model('produit_categorie', produitCatSchema);
 module.exports = Magasin;
