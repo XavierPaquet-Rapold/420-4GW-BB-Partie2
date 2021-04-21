@@ -7,9 +7,22 @@ var bodyParser = require('body-parser');
 var dateFormat = require('dateformat');
 const mongoose = require('mongoose');
 const { Console } = require('console');
+const JSONBig = require('json-bigint');
 var now = new Date();
 const siteTitle = "To Spite The Amish";
 const baseURL = "http://localhost:4000";
+
+const { Client, Environment, ApiError } = require('square');
+// Set the Access Token which is used to authorize to a merchant
+const accessToken = 'EAAAEGxTcqF1rGtpNNjjhGgWSWUPZF88ISaZwJ5v8yQ_Yt85K2Z3wG-RN8GdbfKQ';
+
+// Initialized the Square api client:
+//   Set sandbox environment for testing purpose
+//   Set access token
+const client = new Client({
+    environment: Environment.Sandbox,
+    accessToken: accessToken,
+});
 //Connection a mongoDB et ecoute sur le port
 const url = "mongodb+srv://Xavier:1234@cluster0.loi5s.mongodb.net/db_site?retryWrites=true&w=majority";
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -48,6 +61,41 @@ app.use('/js', express.static(__dirname + '/node_modules/jquery/dist'));
 app.use('/js', express.static(__dirname + '/script'));
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/css', express.static(__dirname + '/style'));
+
+app.post('/process-payment', async (req, res) => {
+    
+    const requestParams = req.body;
+    // Charge the customer's card
+    const paymentsApi = client.paymentsApi;
+    const requestBody = {
+        sourceId: requestParams.nonce,
+        amountMoney: requestParams.money,
+        locationId: requestParams.location_id,
+        idempotencyKey: requestParams.idempotency_key,
+    };
+    
+    try {
+        const response = await paymentsApi.createPayment(requestBody);
+        res.status(200).json({
+        'title': 'Payment Successful',
+        'result': JSONBig.parse(JSONBig.stringify(response.result)),
+        });    
+    } catch(error) {
+        
+        let errorResult = null;
+        if (error instanceof ApiError) {
+        errorResult = error.errors;
+        } else {
+        errorResult = error;
+        }
+        console.log(errorResult);
+        res.status(500).json({
+        'title': 'Payment Failure',
+        'result': errorResult
+        });
+    
+    }
+    });
 
 /*
 pour générer la page principale
