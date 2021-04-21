@@ -178,12 +178,15 @@ app.get('/panier', function (req, res) {
             connexion: req.session.loggedin
         });
     });**/
-Promise.all([Panier.find()]).then(([result])=>{
+Promise.all([
+    Produit_Categorie.find(),
+    Panier.find()
+]).then(([result, result1])=>{
     res.render('pages/panier.ejs', {
         siteTitle: siteTitle,
         pageTitle: "Panier",
-        items: result[0],
-        outils: result[1],
+        items: result,
+        outils: result1,
         connexion: req.session.loggedin
     });
 });
