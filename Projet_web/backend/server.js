@@ -33,6 +33,8 @@ const Panier = require('./models/panier');
 const Produit_Categorie = require('./models/produit_categorie');
 const Produit = require('./models/produit');
 const Utilisateur = require('./models/utilisateur');
+const { validate } = require('./models/inventaire');
+const { MongoClient } = require('mongodb');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -239,7 +241,7 @@ app.get('/creation', function (req, res) {
 /**
  * get methode : pour fermer la session de l'utilisateur
  */
-/**app.get('/logout',  function (req, res, next)  {
+app.get('/logout',  function (req, res, next)  {
     if (req.session.loggedin) {
         // delete session object
         req.session.destroy(function (err) {
@@ -251,13 +253,13 @@ app.get('/creation', function (req, res) {
     } else {
         res.redirect(req.get('referer'));   
     }
-});**/
+});
 
 /*
 pour ajouter un produit au panier
 */
 /**app.post('/produit/:id', function (req, res) {
-    // get the record base on ID
+    // get the record base on ID    
     var quantite = req.body.quantity;
     var id_produit = req.body.id_produit;
     if(req.session.loggedin){
@@ -278,18 +280,29 @@ pour ajouter un produit au panier
 /*
 Enlever un produit du panier
 */
-/**app.post('/panier/enlever/:id', function (req, res) {
+app.post('/panier/enlever/:id', function (req, res) {
     var id_produit = req.body.id_produit;
     if(req.session.loggedin){
-        con.query("DELETE FROM panier WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [id_produit, req.session.id_utilisateur],
+        /**con.query("DELETE FROM panier WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [id_produit, req.session.id_utilisateur],
         function (err, result) {
             if (err) throw err;
             res.redirect('/panier');
-        });
+        });**/
+MongoClient.connect(url, function(err, db){
+if(err)throw err;
+var dbo = db.db("db_site");
+var query = {produit: id_produit, utilisateur:req.session.id_utilisateur};
+dbo.collection("paniers").deleteOne(query, function(err,obj){
+    if(err)throw err;
+});
+});
     }else{
         res.status(204).send();
     }
-});**/
+});
+
+
+
 
 /*
 Modifier la quantite d'un produit dans son panier
@@ -318,7 +331,7 @@ Modifier la quantite d'un produit dans son panier
 /**app.post('/connexion', function(req, res) {
     var username = req.body.username;
     var password = req.body.password;
-    if (username && password) {
+    /**if (username && password) {
         con.query('SELECT * FROM utilisateur WHERE email = ? AND mot_de_passe = ?', [username, password], function(error, results, fields) {
             if (results.length > 0) {
                 req.session.loggedin = true;
@@ -332,8 +345,26 @@ Modifier la quantite d'un produit dans son panier
     } else {
         res.status(204).send();
     }
-});**/
+});*/
+app.post('/connexion', function(req, res){
+MongoClient.connect(url,function(err,db){
+    if(err)throw err;
+    var username = req.body.username;
+    var password = req.body.password;
+    var dbo = db.db("db_site");
+    dbo.collection("utilisateurs").find({},{projection: {email: username, password: password} }).toArray(function(err,result){
+       if(err)throw err;
+       if (result.length > 0) {
+        req.session.loggedin = true;
+        req.session.username = username;
+        res.redirect('/panier');
+    } else {
+        res.status(204).send();
+    }
+    });
+});
 
+});
 /**
  * post methode to date : pour ajouter un utilisateur a la BD
  */

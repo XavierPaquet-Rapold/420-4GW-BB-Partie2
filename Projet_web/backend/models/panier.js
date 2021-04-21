@@ -10,6 +10,10 @@ const panierSchema = new Schema({
     utilisateur: {
         type: ObjectId,
         required: true
+    }, 
+    nombre: {
+        type: Number,
+        required: true
     }
 }, { timestamps: true });
 
