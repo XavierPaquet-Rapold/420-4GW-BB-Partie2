@@ -23,6 +23,7 @@ const client = new Client({
     environment: Environment.Sandbox,
     accessToken: accessToken,
 });
+
 //Connection a mongoDB et ecoute sur le port
 const url = "mongodb+srv://Xavier:1234@cluster0.loi5s.mongodb.net/db_site?retryWrites=true&w=majority";
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -113,7 +114,8 @@ app.get('/', function (req, res) {
     Promise.all([
         Produit_Categorie.find()
     ]).then(([categories]) => {
-        res.render('pages/index', {
+        console.log();
+        res.render('pages/index.ejs', {
             siteTitle: siteTitle,
             pageTitle: "Page Principale",
             items: categories,
@@ -345,6 +347,7 @@ var dbo = db.db("db_site");
 var query = {produit: id_produit, utilisateur:req.session.id_utilisateur};
 dbo.collection("paniers").deleteOne(query, function(err,obj){
     if(err)throw err;
+    res.redirect('/panier');
 });
 });
     }else{
@@ -358,11 +361,11 @@ dbo.collection("paniers").deleteOne(query, function(err,obj){
 /*
 Modifier la quantite d'un produit dans son panier
 */
-/**app.post('/panier/modifier/:id', function (req, res) {
+app.post('/panier/modifier/:id', function (req, res) {
     var id_produit = req.body.id_produit;
     var nombre = req.body.quantity;
     if(req.session.loggedin){
-        con.query("UPDATE panier SET nombre = ? WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [nombre, id_produit, req.session.id_utilisateur],
+        /**con.query("UPDATE panier SET nombre = ? WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [nombre, id_produit, req.session.id_utilisateur],
         function (err, result) {
             if (err) {
                 res.redirect(req.get('referer')); 
@@ -370,11 +373,24 @@ Modifier la quantite d'un produit dans son panier
             else{
                 res.status(204).send();
             }
+        });**/
+        MongoClient.connect(url, function(err, db){
+            if(err)throw err;
+            var dbo = db.db("db_site");
+            var query = {produit: id_produit, nombre: nombre, utilisateur:req.session.id_utilisateur};
+            dbo.collection("paniers").updateMany(query, function(err,obj){
+                if(err) {
+                    res.redirect(req.get('referer')); 
+                }
+                else{
+                    res.status(204).send();
+                }
+            });
         });
     }else{
         res.status(204).send();
     }
-});**/
+});
 
 /**
  * Reception de connexion et mise en memoire
