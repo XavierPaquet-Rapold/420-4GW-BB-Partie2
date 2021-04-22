@@ -7,20 +7,23 @@ nom:{
     required:true
 },
 
-telephone:{
-    type:Number,
-    required:true
-},
 adresse:{
     type:String,
     required:true
 },
+
 ville:{
     type:String,
     required:true
 },
-postale: {
+
+code_postale: {
     type:String,
+    required:true
+},
+
+tel:{
+    type:Number,
     required:true
 },
 

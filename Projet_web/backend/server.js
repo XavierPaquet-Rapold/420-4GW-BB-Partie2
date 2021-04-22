@@ -180,45 +180,25 @@ app.get('/produit/:id', function (req, res) {
         });**/
     const query = { nom: req.params.id };
     Produit.find(query)
-    .then((result) => {
-        const query2 = { id_produit: result.id };
+    .then((produit) => {
+        const query2 = { id_produit: produit[0].id };
+        console.log(query2);
         Promise.all([
             Inventaire.find(query2),
             Produit_Categorie.find(),
-            /**Produit, Inventaire, Magasin.find({
-                "$and":[{
-                    "$where":"this.Produit._id == this.Inventaire.id_produit"
-                },{
-                    "$and":[{
-                        "Produit.Nom": req.params.id
-                    }, {
-                        "$where":"this.Inventaire.id_magasin == this.Magasin._id"
-                    }]
-                }
-            ]
-            })**/
-            /**Magasin.aggregate([
-                { $lookup:
-                    {
-                        from: 'Inventaire',
-                        localField: '_id',
-                        foreignField: 'magasin',
-                        as: 'detailsMagasin'
-                    }
-                }
-            ])**/
+            Magasin.find(),
         ])
-        .then(([result1, result2, result3]) =>{
-            //console.log(result3);
-            console.log(result);
+        .then(([inventaire, categorie, magasin]) =>{
+            console.log(inventaire);
+            //console.log(result);
             //console.log(result2);
             res.render('pages/produit.ejs', {
                 siteTitle: siteTitle,
                 pageTitle: "Produit",
-                item: result,
-                outils: result1,
-                items: result2,
-                magasins: result3,
+                item: produit,
+                outils: inventaire,
+                items: categorie,
+                magasins: magasin,
                 connexion: req.session.loggedin
             });
         });
@@ -243,19 +223,28 @@ app.get('/panier', function (req, res) {
             connexion: req.session.loggedin
         });
     });**/
+const query = {utilisateur: req.session.id_utilisateur};
+    Promise.all([
+        Produit_Categorie.find(),
+        Panier.find(query)
+        /**Panier.aggregate({
+            {
+                $lookup:
+                {
+                    from:"Produit",
 
-Promise.all([
-    Produit_Categorie.find(),
-    Panier.find()
-]).then(([result, result1])=>{
-    res.render('pages/panier.ejs', {
-        siteTitle: siteTitle,
-        pageTitle: "Panier",
-        items: result,
-        outils: result1,
-        connexion: req.session.loggedin
+                }
+            }
+        })**/
+    ]).then(([result, result1])=>{
+        res.render('pages/panier.ejs', {
+            siteTitle: siteTitle,
+            pageTitle: "Panier",
+            items: result,
+            outils: result1,
+            connexion: req.session.loggedin
+        });
     });
-});
 });
 
 /*
@@ -368,14 +357,16 @@ app.post('/panier/enlever/:id', function (req, res) {
             if (err) throw err;
             res.redirect('/panier');
         });**/
-MongoClient.connect(url, function(err, db){
+    Panier.deleteOne({_id: id_produit, utilisateur:req.session.id_utilisateur});
+    res.redirect(req.get('referer'));
+/**MongoClient.connect(url, function(err, db){
 if(err)throw err;
 var dbo = db.db("db_site");
 var query = {produit: id_produit, utilisateur:req.session.id_utilisateur};
 dbo.collection("paniers").deleteOne(query, function(err,obj){
     if(err)throw err;
 });
-});
+});**/
     }else{
         res.status(204).send();
     }

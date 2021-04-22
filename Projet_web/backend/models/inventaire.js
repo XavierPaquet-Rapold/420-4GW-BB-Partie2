@@ -1,14 +1,17 @@
 const mongoose = require('mongoose');
-var ObjectId = require('mongodb').ObjectID;
 const Schema = mongoose.Schema;
 
 const inventaireSchema = new Schema({
-    produit: {
-        type: ObjectId,
+    id_produit: {
+        type: String,
         required: true
     },
-    magasin: {
-        type: ObjectId,
+    id_magasin: {
+        type: String,
+        required: true
+    },
+    nombre: {
+        type: Number,
         required: true
     }
 }, { timestamps: true });
