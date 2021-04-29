@@ -88,35 +88,31 @@ app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/css', express.static(__dirname + '/style'));
 
 app.use(function (req, res, next) {
-    
-    // check if client sent cookie
-    var cookieU = req.cookies.username;
-    var cookieP = req.cookies.password;
-    if (cookieU === undefined && cookieP === undefined) {
-        // no: set a new cookie
-        console.log('cookie not existing');
-    } else {
-        // yes, cookie was already present 
-        console.log('cookies exists', cookieU);
-        console.log('cookies exists', cookieP);
 
-        console.log("hoi");
-        var username = cookieU;
-        var password = cookieP;
-        const query={email:username, password:password};
-        Promise.all([
-            Utilisateur.findOne(query)
-        ]).then(([result]) => {
-            if (result) {
-                req.session.loggedin = true;
-                req.session.username = username;
-                req.session.id_utilisateur = result.id;
-                //res.redirect('/panier');
-            } else {
-                res.status(204).send();
-            }
-        })
-          
+    if(req.originalUrl !== '/logout'){
+        // check if client sent cookie
+        var cookie = req.cookies.user;
+        console.log(cookie);
+        if (cookie === undefined) {
+            // no: set a new cookie
+            console.log('cookie not existing');
+        } else {
+            // yes, cookie was already present 
+            console.log('cookies exists', cookie);
+            var userID = cookie;
+            const query={_id : userID};
+            Promise.all([
+                Utilisateur.findOne(query)
+            ]).then(([result]) => {
+                if (result) {
+                    req.session.loggedin = true;
+                    req.session.username = result.username;
+                    req.session.id_utilisateur = userID;
+                } else {
+                    res.status(204).send();
+                }
+            });
+        }
     } 
     
     next(); // <-- important!
@@ -371,9 +367,8 @@ app.get('/logout',  function (req, res, next)  {
             if (err) {
                 next(err);
             }
-            if(req.cookies.username !== undefined){
-                res.clearCookie('username');
-                res.clearCookie('password');
+            if(req.cookies.user !== undefined){
+                res.clearCookie('user');
             }
             
             res.redirect(req.get('referer'));
@@ -515,15 +510,14 @@ app.post('/panier/modifier/:id', function (req, res) {
 });*/
 app.post('/connexion', function(req, res){
     var username = req.body.username;
-    var password = req.body.password;
+    var staySignedIn = req.body.signedIn;
     const query={email:username};
     Promise.all([
         Utilisateur.findOne(query)
     ]).then(([result]) => {
         if (result) {
             if(staySignedIn === 'checked'){
-                res.cookie('username',  username, {maxAge: 90000000});
-                res.cookie('password',  password, {maxAge: 90000000});
+                res.cookie('user',  result.id, {maxAge: 90000000});
             }
             req.session.loggedin = true;
             req.session.id_utilisateur = result.id;
