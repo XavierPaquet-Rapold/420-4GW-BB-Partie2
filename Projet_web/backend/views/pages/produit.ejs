@@ -23,7 +23,7 @@
                         <h3> Compagnie: <%= row.marque %>
                         </h3>
                         <br>
-                        <h3> Prix: <%= row.prix %>$</h3>
+                        <h3> Prix: <%= row.prix.toFixed(2) %>$</h3>
                         <br>
                         <p>Description: <%= row.description %>
                         </p>
@@ -80,13 +80,17 @@
                         </thead>
                         <tbody>
 
-                            <% outils.forEach(function(row){ %>
+                            <% magasins.forEach(function(row){ %>
 
                                 <tr>
 
                                     <td><%= row.nom %></td>
-                                
-                                    <td><%= row.nombre %></td>
+
+                                    <% outils.forEach(function(result){ %>
+                                        <% if(result.id_magasin == row.id) { %>
+                                            <td><%= result.nombre %></td>
+                                        <% } %>
+                                    <% }) %>
                                 
                                     <td><%= row.adresse %></td>
                                 

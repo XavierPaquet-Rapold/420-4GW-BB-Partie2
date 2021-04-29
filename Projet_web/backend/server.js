@@ -12,6 +12,8 @@ const JSONBig = require('json-bigint');
 var now = new Date();
 const siteTitle = "To Spite The Amish";
 const baseURL = "http://localhost:4000";
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const { Client, Environment, ApiError } = require('square');
 // Set the Access Token which is used to authorize to a merchant
@@ -54,7 +56,22 @@ const Produit_Categorie = require('./models/produit_categorie');
 const Produit = require('./models/produit');
 const Utilisateur = require('./models/utilisateur');
 const { validate } = require('./models/inventaire');
-const { MongoClient } = require('mongodb');
+/**const { MongoClient } = require('mongodb');
+const dbName = 'db_site';
+var db = "";
+const clientMongo = new MongoClient(url, { 
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+// Use connect method to connect to the Server
+clientMongo.connect(function(err) {
+    console.log("Connected successfully to server");
+  
+    db = clientMongo.db(dbName);
+  
+    clientMongo.close();
+  });**/
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -156,7 +173,6 @@ app.get('/', function (req, res) {
     Promise.all([
         Produit_Categorie.find()
     ]).then(([categories]) => {
-        console.log();
         res.render('pages/index.ejs', {
             siteTitle: siteTitle,
             pageTitle: "Page Principale",
@@ -219,45 +235,21 @@ app.get('/produit/:id', function (req, res) {
         });**/
     const query = { nom: req.params.id };
     Produit.find(query)
-    .then((result) => {
-        const query2 = { id_produit: result.id };
+    .then((produit) => {
+        const query2 = { id_produit: produit[0].id };
         Promise.all([
             Inventaire.find(query2),
             Produit_Categorie.find(),
-            /**Produit, Inventaire, Magasin.find({
-                "$and":[{
-                    "$where":"this.Produit._id == this.Inventaire.id_produit"
-                },{
-                    "$and":[{
-                        "Produit.Nom": req.params.id
-                    }, {
-                        "$where":"this.Inventaire.id_magasin == this.Magasin._id"
-                    }]
-                }
-            ]
-            })**/
-            /**Magasin.aggregate([
-                { $lookup:
-                    {
-                        from: 'Inventaire',
-                        localField: '_id',
-                        foreignField: 'magasin',
-                        as: 'detailsMagasin'
-                    }
-                }
-            ])**/
+            Magasin.find(),
         ])
-        .then(([result1, result2, result3]) =>{
-            //console.log(result3);
-            console.log(result);
-            //console.log(result2);
+        .then(([inventaire, categorie, magasin]) =>{
             res.render('pages/produit.ejs', {
                 siteTitle: siteTitle,
                 pageTitle: "Produit",
-                item: result,
-                outils: result1,
-                items: result2,
-                magasins: result3,
+                item: produit,
+                outils: inventaire,
+                items: categorie,
+                magasins: magasin,
                 connexion: req.session.loggedin
             });
         });
@@ -282,19 +274,42 @@ app.get('/panier', function (req, res) {
             connexion: req.session.loggedin
         });
     });**/
-
-Promise.all([
-    Produit_Categorie.find(),
-    Panier.find()
-]).then(([result, result1])=>{
-    res.render('pages/panier.ejs', {
-        siteTitle: siteTitle,
-        pageTitle: "Panier",
-        items: result,
-        outils: result1,
-        connexion: req.session.loggedin
+    Promise.all([
+        Produit_Categorie.find(),
+        /**Panier.find(query),**/
+        Panier.aggregate([
+            {
+                '$match': { utilisateur : req.session.id_utilisateur }
+            },
+            { '$lookup':
+                {
+                    'from': Produit.collection.name,
+                    'localField': "produit",
+                    'foreignField': "_id",
+                    'as': "info_produit"
+                }
+            }
+        ])
+        
+        /**db.paniers.aggregate([
+            { $lookup:
+                {
+                    from:"produits",
+                    localField: "produit",
+                    foreignField: "id",
+                    as: "info_produit"
+                }
+            }
+        ])**/
+    ]).then(([result, result1])=>{
+        res.render('pages/panier.ejs', {
+            siteTitle: siteTitle,
+            pageTitle: "Panier",
+            items: result,
+            outils: result1,
+            connexion: req.session.loggedin
+        });
     });
-});
 });
 
 /*
@@ -375,7 +390,6 @@ app.post('/produit/:id', function (req, res) {
     // get the record base on ID    
     var quantite = req.body.quantity;
     var id_produit = req.body.id_produit;
-    console.log(req.session.username)
     if(req.session.loggedin){
         /**con.query("INSERT INTO panier (produit_id_produit, utilisateur_id_utilisateur, nombre) VALUES (?, ?, ?);", [id_produit, req.session.id_utilisateur, quantite], 
         function (err, result) {
@@ -405,14 +419,18 @@ app.post('/produit/:id', function (req, res) {
 Enlever un produit du panier
 */
 app.post('/panier/enlever/:id', function (req, res) {
-    var id_produit = req.body.id_produit;
+    var id = req.params.id;
     if(req.session.loggedin){
         /**con.query("DELETE FROM panier WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [id_produit, req.session.id_utilisateur],
         function (err, result) {
             if (err) throw err;
             res.redirect('/panier');
         });**/
-MongoClient.connect(url, function(err, db){
+        Panier.findOneAndDelete(id, function (err) {
+            if(err) console.log(err);
+        });
+    res.redirect(req.get('referer'));
+/**MongoClient.connect(url, function(err, db){
 if(err)throw err;
 var dbo = db.db("db_site");
 var query = {produit: id_produit, utilisateur:req.session.id_utilisateur};
@@ -420,7 +438,7 @@ dbo.collection("paniers").deleteOne(query, function(err,obj){
     if(err)throw err;
     res.redirect('/panier');
 });
-});
+});**/
     }else{
         res.status(204).send();
     }
@@ -445,7 +463,7 @@ app.post('/panier/modifier/:id', function (req, res) {
                 res.status(204).send();
             }
         });**/
-        MongoClient.connect(url, function(err, db){
+        /**MongoClient.connect(url, function(err, db){
             if(err)throw err;
             var dbo = db.db("db_site");
             var query = {produit: id_produit, nombre: nombre, utilisateur:req.session.id_utilisateur};
@@ -457,7 +475,18 @@ app.post('/panier/modifier/:id', function (req, res) {
                     res.status(204).send();
                 }
             });
-        });
+        });**/
+        Panier.findByIdAndUpdate(
+            { _id: req.params.id },
+            { nombre: req.body.quantity },
+            function(err, result) {
+                if (err) {
+                    res.redirect(req.get('referer')); 
+                } else {
+                    res.redirect(req.get('referer')); 
+                }
+            }
+        );
     }else{
         res.status(204).send();
     }
@@ -487,9 +516,7 @@ app.post('/panier/modifier/:id', function (req, res) {
 app.post('/connexion', function(req, res){
     var username = req.body.username;
     var password = req.body.password;
-    var staySignedIn = req.body.signedIn;
-    console.log(staySignedIn)
-    const query={email:username, password:password};
+    const query={email:username};
     Promise.all([
         Utilisateur.findOne(query)
     ]).then(([result]) => {
@@ -499,10 +526,13 @@ app.post('/connexion', function(req, res){
                 res.cookie('password',  password, {maxAge: 90000000});
             }
             req.session.loggedin = true;
-            req.session.username = username;
             req.session.id_utilisateur = result.id;
             res.redirect('/panier');
-        } else {
+        } else{
+            bcrypt.compare(req.body.password, user[0].password)
+            .then(function(){
+                console.log(user[0])
+            })
             res.status(204).send();
         }
     })
@@ -529,6 +559,7 @@ app.post('/creation', function (req,res){
         if(err) throw err;
         res.redirect(baseURL);
     });*/
+
 var userData ={
     prenom : req.body.Prenom,
     nom: req.body.Nom,
@@ -542,10 +573,6 @@ var userData ={
 new Utilisateur(userData)
 .save()
 .then(userData=>{
-    res.json({
-        message: 'Utilisateur ajouté!'
-    })
+   
 })
-res.redirect(baseURL);
-
 });

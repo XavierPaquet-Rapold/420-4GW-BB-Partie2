@@ -8,7 +8,7 @@ const panierSchema = new Schema({
         required: true
     },
     utilisateur: {
-        type: ObjectId,
+        type: String,
         required: true
     }, 
     nombre: {
