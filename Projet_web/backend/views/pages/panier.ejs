@@ -27,8 +27,8 @@ et des options d'actions pour chaqu'un des produits-->
                         <td><%= row.nom %></td>
                         <td><%= row.marque %></td>
                         <td><%= row.nombre %></td>
-                        <td><%= row.prix.toFixed(2) %>$</td>
-                        <td><%= (row.prix * row.nombre).toFixed(2) %>$</td>
+                        <td><%= row.prix %>$</td>
+                        <td><%= (row.prix * row.nombre) %>$</td>
                         <!--Actions pour chaque produit: modifier le nombre du produit dans le panier et enlever le produit du panier-->
                         <td colspan="2">
                             <div class="row container" style="display: flex; justify-content: center;">
@@ -65,7 +65,7 @@ et des options d'actions pour chaqu'un des produits-->
                         <td></td>
                         <td></td>
                         <td span>
-                            <b><%= total.toFixed(2) %>$</b>
+                            <b><%= total %>$</b>
                         </td>
                         <td></td>
                         <td></td>
@@ -142,7 +142,7 @@ et des options d'actions pour chaqu'un des produits-->
                         idempotency_key: idempotency_key,
                         location_id: "LNBNKF68H6NGS",
                         money: {
-                            amount: 100, // $1.00 charge
+                            amount: 400090, // $1.00 charge
                             currency: 'CAD'
                         }
                     }
@@ -174,8 +174,6 @@ et des options d'actions pour chaqu'un des produits-->
                             console.log(err);
                             alert('Payment failed to complete!\nCheck browser developer console for more details');
                         });
-
-                    alert(`The generated nonce is:\n${nonce}`);
                 }
             }
         });
