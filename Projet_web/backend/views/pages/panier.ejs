@@ -20,41 +20,40 @@ et des options d'actions pour chaqu'un des produits-->
             <!--Affichage des informations sur chaque produit-->
             <tbody>
                 <% outils.forEach(function(row){ %>
+                    <% var data = JSON.parse(JSON.stringify(row)); %>
                     <tr>
                         <td>
-                            <img style="max-height:50px; max-width: 50px;" src="<%= row.image %>"/>
+                            <img style="max-height:50px; max-width: 50px;" src="<%= data.info_produit[0].image %>"/>
                         </td>
-                        <td><%= row.nom %></td>
-                        <td><%= row.marque %></td>
-                        <td><%= row.nombre %></td>
-                        <td><%= row.prix %>$</td>
-                        <td><%= (row.prix * row.nombre) %>$</td>
+                        <td><%= data.info_produit[0].nom %></td>
+                        <td><%= data.info_produit[0].marque %></td>
+                        <td><%= data.nombre %></td>
+                        <td><%= data.info_produit[0].prix.toFixed(2) %>$</td>
+                        <td><%= (data.info_produit[0].prix * row.nombre).toFixed(2) %>$</td>
                         <!--Actions pour chaque produit: modifier le nombre du produit dans le panier et enlever le produit du panier-->
                         <td colspan="2">
                             <div class="row container" style="display: flex; justify-content: center;">
-                                <form action="/panier/modifier/<%= row.id_produit %>" method="POST">
+                                <form action="/panier/modifier/<%= data._id %>" method="POST">
                                     <div class="row">
-                                        <input type="hidden" name="id_produit" value="<%= row.id_produit %>"/>
                                         <div style="width: 60px;">
-                                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="30" placeholder="<%= row.nombre %>">
+                                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="30" value="<%= row.nombre %>">
                                         </div>
                                         <div class="col">
-                                            <input type="submit" class="btn btn-warning btn-md" id="<%= row.id %>" value="Modifier"/>
+                                            <input type="submit" class="btn btn-warning btn-md" value="Modifier"/>
                                         </div>
                                     </div>
                                 </form>
-                                <form action="/panier/enlever/<%= row.id_produit %>" method="POST">
+                                <form action="/panier/enlever/<%= data._id %>" method="POST">
                                     <div class="row">
                                         <div class="col">
-                                            <input type="hidden" name="id_produit" value="<%= row.id %>"/>
-                                            <input type="submit" class="btn btn-danger btn-md" id="<%= row.id %>" value="Enlever"/>
+                                            <input type="submit" class="btn btn-danger btn-md" value="Enlever"/>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                         </td>
                     </tr>
-                    <% total += (row.prix * row.nombre) %>
+                    <% total += data.info_produit[0].prix * row.nombre %>
                 <% }) %>
                 <!--Prix total du panier au complet(sans les taxes)-->
                 <tfoot>
@@ -65,7 +64,7 @@ et des options d'actions pour chaqu'un des produits-->
                         <td></td>
                         <td></td>
                         <td span>
-                            <b><%= total %>$</b>
+                            <b><%= total.toFixed(2) %>$</b>
                         </td>
                         <td></td>
                         <td></td>
