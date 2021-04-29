@@ -53,7 +53,22 @@ const Produit_Categorie = require('./models/produit_categorie');
 const Produit = require('./models/produit');
 const Utilisateur = require('./models/utilisateur');
 const { validate } = require('./models/inventaire');
-const { MongoClient } = require('mongodb');
+/**const { MongoClient } = require('mongodb');
+const dbName = 'db_site';
+var db = "";
+const clientMongo = new MongoClient(url, { 
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+// Use connect method to connect to the Server
+clientMongo.connect(function(err) {
+    console.log("Connected successfully to server");
+  
+    db = clientMongo.db(dbName);
+  
+    clientMongo.close();
+  });**/
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -119,7 +134,6 @@ app.get('/', function (req, res) {
     Promise.all([
         Produit_Categorie.find()
     ]).then(([categories]) => {
-        console.log();
         res.render('pages/index.ejs', {
             siteTitle: siteTitle,
             pageTitle: "Page Principale",
@@ -184,16 +198,12 @@ app.get('/produit/:id', function (req, res) {
     Produit.find(query)
     .then((produit) => {
         const query2 = { id_produit: produit[0].id };
-        console.log(query2);
         Promise.all([
             Inventaire.find(query2),
             Produit_Categorie.find(),
             Magasin.find(),
         ])
         .then(([inventaire, categorie, magasin]) =>{
-            console.log(inventaire);
-            //console.log(result);
-            //console.log(result2);
             res.render('pages/produit.ejs', {
                 siteTitle: siteTitle,
                 pageTitle: "Produit",
@@ -225,19 +235,33 @@ app.get('/panier', function (req, res) {
             connexion: req.session.loggedin
         });
     });**/
-const query = {utilisateur: req.session.id_utilisateur};
     Promise.all([
         Produit_Categorie.find(),
-        Panier.find(query)
-        /**Panier.aggregate({
+        /**Panier.find(query),**/
+        Panier.aggregate([
             {
-                $lookup:
+                '$match': { utilisateur : req.session.id_utilisateur }
+            },
+            { '$lookup':
                 {
-                    from:"Produit",
-
+                    'from': Produit.collection.name,
+                    'localField': "produit",
+                    'foreignField': "_id",
+                    'as': "info_produit"
                 }
             }
-        })**/
+        ])
+        
+        /**db.paniers.aggregate([
+            { $lookup:
+                {
+                    from:"produits",
+                    localField: "produit",
+                    foreignField: "id",
+                    as: "info_produit"
+                }
+            }
+        ])**/
     ]).then(([result, result1])=>{
         res.render('pages/panier.ejs', {
             siteTitle: siteTitle,
@@ -322,7 +346,6 @@ app.post('/produit/:id', function (req, res) {
     // get the record base on ID    
     var quantite = req.body.quantity;
     var id_produit = req.body.id_produit;
-    console.log(req.session.username)
     if(req.session.loggedin){
         /**con.query("INSERT INTO panier (produit_id_produit, utilisateur_id_utilisateur, nombre) VALUES (?, ?, ?);", [id_produit, req.session.id_utilisateur, quantite], 
         function (err, result) {
@@ -352,14 +375,16 @@ app.post('/produit/:id', function (req, res) {
 Enlever un produit du panier
 */
 app.post('/panier/enlever/:id', function (req, res) {
-    var id_produit = req.body.id_produit;
+    var id = req.params.id;
     if(req.session.loggedin){
         /**con.query("DELETE FROM panier WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [id_produit, req.session.id_utilisateur],
         function (err, result) {
             if (err) throw err;
             res.redirect('/panier');
         });**/
-    Panier.deleteOne({_id: id_produit, utilisateur:req.session.id_utilisateur});
+        Panier.findOneAndDelete(id, function (err) {
+            if(err) console.log(err);
+        });
     res.redirect(req.get('referer'));
 /**MongoClient.connect(url, function(err, db){
 if(err)throw err;
@@ -394,7 +419,7 @@ app.post('/panier/modifier/:id', function (req, res) {
                 res.status(204).send();
             }
         });**/
-        MongoClient.connect(url, function(err, db){
+        /**MongoClient.connect(url, function(err, db){
             if(err)throw err;
             var dbo = db.db("db_site");
             var query = {produit: id_produit, nombre: nombre, utilisateur:req.session.id_utilisateur};
@@ -406,7 +431,18 @@ app.post('/panier/modifier/:id', function (req, res) {
                     res.status(204).send();
                 }
             });
-        });
+        });**/
+        Panier.findByIdAndUpdate(
+            { _id: req.params.id },
+            { nombre: req.body.quantity },
+            function(err, result) {
+                if (err) {
+                    res.redirect(req.get('referer')); 
+                } else {
+                    res.redirect(req.get('referer')); 
+                }
+            }
+        );
     }else{
         res.status(204).send();
     }
@@ -442,7 +478,6 @@ app.post('/connexion', function(req, res){
     ]).then(([result]) => {
         if (result) {
             req.session.loggedin = true;
-            req.session.username = username;
             req.session.id_utilisateur = result.id;
             res.redirect('/panier');
         } else {
@@ -485,10 +520,6 @@ var userData ={
 new Utilisateur(userData)
 .save()
 .then(userData=>{
-    res.json({
-        message: 'Utilisateur ajouté!'
-    })
+    res.redirect(baseURL);
 })
-res.redirect(baseURL);
-
 });
