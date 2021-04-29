@@ -53,22 +53,6 @@ const Produit_Categorie = require('./models/produit_categorie');
 const Produit = require('./models/produit');
 const Utilisateur = require('./models/utilisateur');
 const { validate } = require('./models/inventaire');
-/**const { MongoClient } = require('mongodb');
-const dbName = 'db_site';
-var db = "";
-const clientMongo = new MongoClient(url, { 
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
-
-// Use connect method to connect to the Server
-clientMongo.connect(function(err) {
-    console.log("Connected successfully to server");
-  
-    db = clientMongo.db(dbName);
-  
-    clientMongo.close();
-  });**/
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -97,10 +81,14 @@ app.post('/process-payment', async (req, res) => {
     
     try {
         const response = await paymentsApi.createPayment(requestBody);
+
         res.status(200).json({
         'title': 'Payment Successful',
         'result': JSONBig.parse(JSONBig.stringify(response.result)),
-        });    
+        });
+        Panier.deleteMany({ utilisateur: req.session.id_utilisateur }, function (err) {
+            if(err) console.log(err);
+        });
     } catch(error) {
         
         let errorResult = null;
@@ -194,12 +182,10 @@ app.get('/produit/:id', function (req, res) {
                 connexion: req.session.loggedin
             });
         });**/
-    const query = { nom: req.params.id };
-    Produit.find(query)
+    Produit.find({ nom: req.params.id })
     .then((produit) => {
-        const query2 = { id_produit: produit[0].id };
         Promise.all([
-            Inventaire.find(query2),
+            Inventaire.find({ id_produit: produit[0].id }),
             Produit_Categorie.find(),
             Magasin.find(),
         ])
@@ -237,7 +223,6 @@ app.get('/panier', function (req, res) {
     });**/
     Promise.all([
         Produit_Categorie.find(),
-        /**Panier.find(query),**/
         Panier.aggregate([
             {
                 '$match': { utilisateur : req.session.id_utilisateur }
@@ -251,17 +236,6 @@ app.get('/panier', function (req, res) {
                 }
             }
         ])
-        
-        /**db.paniers.aggregate([
-            { $lookup:
-                {
-                    from:"produits",
-                    localField: "produit",
-                    foreignField: "id",
-                    as: "info_produit"
-                }
-            }
-        ])**/
     ]).then(([result, result1])=>{
         res.render('pages/panier.ejs', {
             siteTitle: siteTitle,
@@ -356,16 +330,36 @@ app.post('/produit/:id', function (req, res) {
                 res.status(204).send();
             }
         });**/
-        const donnees = {
-            produit: id_produit,
-            utilisateur: req.session.id_utilisateur,
-            nombre: quantite
-        }
-        new Panier(donnees)
-        .save()
-        .then(donnees => {
-            res.redirect(req.get('referer'));
-        })
+        /**Panier.find({ produit: req.body.id_produit, utilisateur: req.session.id_utilisateur}, function (err, result) {
+            if(err) console.log(err);
+            console.log(result);
+            if(result){
+                Panier.findByIdAndUpdate({ _id: result.id }, { nombre: result.nombre + req.body.quantity },
+                    function(err) {
+                        console.log(result);
+                        res.redirect(req.get('referer')); 
+                    }
+                )
+            }else{
+                const donnees = {
+                    produit: id_produit,
+                    utilisateur: req.session.id_utilisateur,
+                    nombre: quantite
+                }
+                new Panier(donnees)
+                .save()
+                .then(donnees => {
+                    res.redirect(req.get('referer'));
+                })
+            }
+        });**/
+        Panier.findOneAndUpdate(
+            { produit: req.body.id_produit, utilisateur: req.session.id_utilisateur }, 
+            { $inc: { nombre: req.body.quantity } }, { upsert: true },
+            function(err, result) { 
+                res.redirect(req.get('referer'));
+            }
+        )
     }else{
         res.status(204).send();
     }
@@ -407,8 +401,6 @@ dbo.collection("paniers").deleteOne(query, function(err,obj){
 Modifier la quantite d'un produit dans son panier
 */
 app.post('/panier/modifier/:id', function (req, res) {
-    var id_produit = req.body.id_produit;
-    var nombre = req.body.quantity;
     if(req.session.loggedin){
         /**con.query("UPDATE panier SET nombre = ? WHERE produit_id_produit = ? AND utilisateur_id_utilisateur = ?", [nombre, id_produit, req.session.id_utilisateur],
         function (err, result) {
