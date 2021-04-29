@@ -2,6 +2,7 @@ var express = require('express');
 var http = require('http');
 var app = express();
 var session = require('express-session');
+var cookieParser = require('cookie-parser');
 var path = require('path');
 var bodyParser = require('body-parser');
 var dateFormat = require('dateformat');
@@ -11,6 +12,8 @@ const JSONBig = require('json-bigint');
 var now = new Date();
 const siteTitle = "To Spite The Amish";
 const baseURL = "http://localhost:4000";
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const { Client, Environment, ApiError } = require('square');
 // Set the Access Token which is used to authorize to a merchant
@@ -54,6 +57,7 @@ const Produit = require('./models/produit');
 const Utilisateur = require('./models/utilisateur');
 const { validate } = require('./models/inventaire');
 
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use( express.static( "views" ) );
@@ -66,6 +70,37 @@ app.use('/js', express.static(__dirname + '/node_modules/jquery/dist'));
 app.use('/js', express.static(__dirname + '/script'));
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/css', express.static(__dirname + '/style'));
+
+app.use(function (req, res, next) {
+
+    if(req.originalUrl !== '/logout'){
+        // check if client sent cookie
+        var cookie = req.cookies.user;
+        console.log(cookie);
+        if (cookie === undefined) {
+            // no: set a new cookie
+            console.log('cookie not existing');
+        } else {
+            // yes, cookie was already present 
+            console.log('cookies exists', cookie);
+            var userID = cookie;
+            const query={_id : userID};
+            Promise.all([
+                Utilisateur.findOne(query)
+            ]).then(([result]) => {
+                if (result) {
+                    req.session.loggedin = true;
+                    req.session.username = result.username;
+                    req.session.id_utilisateur = userID;
+                } else {
+                    res.status(204).send();
+                }
+            });
+        }
+    } 
+    
+    next(); // <-- important!
+    });
 
 app.post('/process-payment', async (req, res) => {
     
@@ -306,6 +341,10 @@ app.get('/logout',  function (req, res, next)  {
             if (err) {
                 next(err);
             }
+            if(req.cookies.user !== undefined){
+                res.clearCookie('user');
+            }
+            
             res.redirect(req.get('referer'));
         });
     } else {
@@ -463,16 +502,23 @@ app.post('/panier/modifier/:id', function (req, res) {
 });*/
 app.post('/connexion', function(req, res){
     var username = req.body.username;
-    var password = req.body.password;
-    const query={email:username, password:password};
+    var staySignedIn = req.body.signedIn;
+    const query={email:username};
     Promise.all([
         Utilisateur.findOne(query)
     ]).then(([result]) => {
         if (result) {
+            if(staySignedIn === 'checked'){
+                res.cookie('user',  result.id, {maxAge: 90000000});
+            }
             req.session.loggedin = true;
             req.session.id_utilisateur = result.id;
             res.redirect('/panier');
-        } else {
+        } else{
+            bcrypt.compare(req.body.password, user[0].password)
+            .then(function(){
+                console.log(user[0])
+            })
             res.status(204).send();
         }
     })
@@ -499,6 +545,7 @@ app.post('/creation', function (req,res){
         if(err) throw err;
         res.redirect(baseURL);
     });*/
+
 var userData ={
     prenom : req.body.Prenom,
     nom: req.body.Nom,
@@ -512,6 +559,6 @@ var userData ={
 new Utilisateur(userData)
 .save()
 .then(userData=>{
-    res.redirect(baseURL);
+   
 })
 });
