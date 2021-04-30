@@ -115,14 +115,12 @@ app.post('/process-payment', async (req, res) => {
     };
     
     try {
-        const response = await paymentsApi.createPayment(requestBody);
-
-        res.status(200).json({
-        'title': 'Payment Successful',
-        'result': JSONBig.parse(JSONBig.stringify(response.result)),
-        });
+        await paymentsApi.createPayment(requestBody);
         Panier.deleteMany({ utilisateur: req.session.id_utilisateur }, function (err) {
             if(err) console.log(err);
+        });
+        res.status(200).json({
+            'title': 'Payment Successful'
         });
     } catch(error) {
         
