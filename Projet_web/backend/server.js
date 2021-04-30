@@ -356,42 +356,7 @@ app.get('/logout',  function (req, res, next)  {
 pour ajouter un produit au panier
 */
 app.post('/produit/:id', function (req, res) {
-    // get the record base on ID    
-    var quantite = req.body.quantity;
-    var id_produit = req.body.id_produit;
     if(req.session.loggedin){
-        /**con.query("INSERT INTO panier (produit_id_produit, utilisateur_id_utilisateur, nombre) VALUES (?, ?, ?);", [id_produit, req.session.id_utilisateur, quantite], 
-        function (err, result) {
-            if (err) {
-                res.redirect(req.get('referer')); 
-            }
-            else{
-                res.status(204).send();
-            }
-        });**/
-        /**Panier.find({ produit: req.body.id_produit, utilisateur: req.session.id_utilisateur}, function (err, result) {
-            if(err) console.log(err);
-            console.log(result);
-            if(result){
-                Panier.findByIdAndUpdate({ _id: result.id }, { nombre: result.nombre + req.body.quantity },
-                    function(err) {
-                        console.log(result);
-                        res.redirect(req.get('referer')); 
-                    }
-                )
-            }else{
-                const donnees = {
-                    produit: id_produit,
-                    utilisateur: req.session.id_utilisateur,
-                    nombre: quantite
-                }
-                new Panier(donnees)
-                .save()
-                .then(donnees => {
-                    res.redirect(req.get('referer'));
-                })
-            }
-        });**/
         Panier.findOneAndUpdate(
             { produit: req.body.id_produit, utilisateur: req.session.id_utilisateur }, 
             { $inc: { nombre: req.body.quantity } }, { upsert: true },
@@ -418,16 +383,7 @@ app.post('/panier/enlever/:id', function (req, res) {
         Panier.findOneAndDelete(id, function (err) {
             if(err) console.log(err);
         });
-    res.redirect(req.get('referer'));
-/**MongoClient.connect(url, function(err, db){
-if(err)throw err;
-var dbo = db.db("db_site");
-var query = {produit: id_produit, utilisateur:req.session.id_utilisateur};
-dbo.collection("paniers").deleteOne(query, function(err,obj){
-    if(err)throw err;
-    res.redirect('/panier');
-});
-});**/
+        res.redirect(req.get('referer'));
     }else{
         res.status(204).send();
     }
@@ -449,19 +405,6 @@ app.post('/panier/modifier/:id', function (req, res) {
             else{
                 res.status(204).send();
             }
-        });**/
-        /**MongoClient.connect(url, function(err, db){
-            if(err)throw err;
-            var dbo = db.db("db_site");
-            var query = {produit: id_produit, nombre: nombre, utilisateur:req.session.id_utilisateur};
-            dbo.collection("paniers").updateMany(query, function(err,obj){
-                if(err) {
-                    res.redirect(req.get('referer')); 
-                }
-                else{
-                    res.status(204).send();
-                }
-            });
         });**/
         Panier.findByIdAndUpdate(
             { _id: req.params.id },
@@ -559,6 +502,6 @@ var userData ={
 new Utilisateur(userData)
 .save()
 .then(userData=>{
-   
+    res.redirect('/connexion')
 })
 });
