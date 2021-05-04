@@ -12,8 +12,7 @@ const panierSchema = new Schema({
         required: true
     }, 
     nombre: {
-        type: Number,
-        required: true
+        type: Number
     }
 }, { timestamps: true });
 

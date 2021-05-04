@@ -5,9 +5,10 @@
             <div class="main milieu">
                 <h2>Connexion</h2>
                 <label>Utilisateur :</label>
-                <input type="text" name="username" id="username" placeholder="Entrez votre courriel"/>
+                <input type="text" name="username" id="username" placeholder="Entrez votre courriel" required/>
                 <label>Mot-de-Passe :</label>
-                <input type="password" name="password" placeholder="Entrez le mot-de-passe"/>
+                <input type="password" name="password" placeholder="Entrez le mot-de-passe" required/>
+                <input type="checkbox" name="signedIn" value="checked" class="checkbox">Rester connecter?</input><br><br>
                 <input type="submit" href="/connexion" class="button3" value="Connexion"/>
                 <input type="button" class="button1" onclick=window.location.href="/creation" value="Créer un compte" />
             </div>
