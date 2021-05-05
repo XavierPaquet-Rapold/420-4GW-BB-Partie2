@@ -82,9 +82,12 @@ et des options d'actions pour chaqu'un des produits-->
         <button id="sq-creditcard" class="button-credit-card" onclick="onGetCardNonce(event)">Pay <%= total.toFixed(2) %>$    </button>
     </div> <!-- end #form-container -->
 
-    <script type="text/javascript" >
-        
+    <script>        
+
         const idempotency_key = uuidv4();
+
+        let total = '<%-total%>';
+        let totalFinal = total.replace(".", "");
 
         // Create and initialize a payment form object
         const paymentForm = new SqPaymentForm({
@@ -125,6 +128,7 @@ et des options d'actions pour chaqu'un des produits-->
                 * callback function: cardNonceResponseReceived
                 * Triggered when: SqPaymentForm completes a card nonce request
                 */
+               
                 cardNonceResponseReceived: function (errors, nonce, cardData) {
                     if (errors) {
                         // Log errors from nonce generation to the browser developer console.
@@ -141,7 +145,7 @@ et des options d'actions pour chaqu'un des produits-->
                         idempotency_key: idempotency_key,
                         location_id: "LNBNKF68H6NGS",
                         money: {
-                            amount:100 , // $1.00 charge
+                            amount: totalFinal, // $1.00 charge
                             currency: 'CAD'
                         }
                     }

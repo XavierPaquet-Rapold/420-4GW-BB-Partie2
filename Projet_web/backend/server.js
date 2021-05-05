@@ -443,7 +443,8 @@ app.post('/connexion', function(req, res){
     ]).then(([result]) => {
         if (result) {
             if(staySignedIn === 'checked'){
-                res.cookie('user',  result.id, {maxAge: 90000000});
+                //Le cookie expire apres un an
+                res.cookie('user',  result.id, {maxAge: 1000*60*60*24*365});
             }
             req.session.loggedin = true;
             req.session.id_utilisateur = result.id;
