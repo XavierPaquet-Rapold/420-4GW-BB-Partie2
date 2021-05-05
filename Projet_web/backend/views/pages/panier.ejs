@@ -64,7 +64,7 @@ et des options d'actions pour chaqu'un des produits-->
                         <td></td>
                         <td></td>
                         <td span>
-                            <b><%= total.toFixed(2) %>$</b>
+                            <b id='prix_total'><%= total.toFixed(2) %>$</b>
                         </td>
                         <td></td>
                         <td></td>
@@ -79,11 +79,11 @@ et des options d'actions pour chaqu'un des produits-->
         <div class="third" id="sq-expiration-date"></div>
         <div class="third" id="sq-cvv"></div>
         <div class="third" id="sq-postal-code"></div>
-        <button id="sq-creditcard" class="button-credit-card" onclick="onGetCardNonce(event)">Pay $1.00</button>
+        <button id="sq-creditcard" class="button-credit-card" onclick="onGetCardNonce(event)">Pay <%= total.toFixed(2) %>$    </button>
     </div> <!-- end #form-container -->
 
-    <script type="text/javascript">
-
+    <script type="text/javascript" >
+        
         const idempotency_key = uuidv4();
 
         // Create and initialize a payment form object
@@ -141,7 +141,7 @@ et des options d'actions pour chaqu'un des produits-->
                         idempotency_key: idempotency_key,
                         location_id: "LNBNKF68H6NGS",
                         money: {
-                            amount: 400090, // $1.00 charge
+                            amount:100 , // $1.00 charge
                             currency: 'CAD'
                         }
                     }
