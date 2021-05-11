@@ -25,7 +25,7 @@ et des options d'actions pour chaqu'un des produits-->
                         <td>
                             <img style="max-height:50px; max-width: 50px;" src="<%= data.info_produit[0].image %>"/>
                         </td>
-                        <td><%= data.info_produit[0].nom %></td>
+                        <td><a  style="color:rgb(188, 222, 243);" href="/produit/<%= data.info_produit[0].nom %>"><%= data.info_produit[0].nom %></a></td>
                         <td><%= data.info_produit[0].marque %></td>
                         <td><%= data.nombre %></td>
                         <td><%= data.info_produit[0].prix.toFixed(2) %>$</td>
@@ -79,7 +79,7 @@ et des options d'actions pour chaqu'un des produits-->
         <div class="third" id="sq-expiration-date"></div>
         <div class="third" id="sq-cvv"></div>
         <div class="third" id="sq-postal-code"></div>
-        <button id="sq-creditcard" class="button-credit-card" onclick="onGetCardNonce(event)">Pay <%= total.toFixed(2) %>$    </button>
+        <button id="sq-creditcard" class="button-credit-card" onclick="onGetCardNonce(event)">Payer <%= total.toFixed(2) %>$    </button>
     </div> <!-- end #form-container -->
 
     <script>        
@@ -108,11 +108,11 @@ et des options d'actions pour chaqu'un des produits-->
             // Initialize the credit card placeholders
             cardNumber: {
                 elementId: 'sq-card-number',
-                placeholder: 'Card Number'
+                placeholder: 'Numéro de carte'
             },
             cvv: {
                 elementId: 'sq-cvv',
-                placeholder: 'CVV'
+                placeholder: 'NIP'
             },
             expirationDate: {
                 elementId: 'sq-expiration-date',
@@ -120,7 +120,7 @@ et des options d'actions pour chaqu'un des produits-->
             },
             postalCode: {
                 elementId: 'sq-postal-code',
-                placeholder: 'Postal'
+                placeholder: 'Code postale'
             },
             // SqPaymentForm callback functions
             callbacks: {
